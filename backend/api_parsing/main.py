@@ -1,12 +1,17 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 from starlette.middleware.cors import CORSMiddleware
+from modules.links.router import router as router_links
 
 # инициализация приложения
 app = FastAPI(
     title="DreamManor Parser Avito",
     version="0.0.1",
 )
+
+add_pagination(app)
+app.include_router(router_links)
 
 origins = [
     "http://localhost:9000",

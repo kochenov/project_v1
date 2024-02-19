@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    api_prefix: str
+    api_prefix: str = ""
     db_host: str
     db_port: int
     db_name: str
