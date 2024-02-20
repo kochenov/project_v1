@@ -36,5 +36,6 @@ class ReadLinkSchema(LinkBaseSchema):
     pass
 
 
-class UpdateLinkSchema(LinkBaseSchema):
-    pass
+class UpdateLinkSchema(BaseModel):
+    status_id: int
+    comment: Optional[str] = None

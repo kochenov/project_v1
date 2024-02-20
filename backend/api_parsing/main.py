@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 from starlette.middleware.cors import CORSMiddleware
 from modules.links.router import router as router_links
+from modules.parsing_process.router import router as router_process
 
 # инициализация приложения
 app = FastAPI(
@@ -12,6 +13,7 @@ app = FastAPI(
 
 add_pagination(app)
 app.include_router(router_links)
+app.include_router(router_process)
 
 origins = [
     "http://localhost:9000",
