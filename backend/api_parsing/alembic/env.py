@@ -20,9 +20,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 from core.database.database import Base
 from core.config import settings
+from modules import __all__
 
 target_metadata = Base.metadata
-# target_metadata = None
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

@@ -8,6 +8,7 @@ from core.database.database import Base
 class Link(Base):
     """Описание таблицы базы данных объявлений недвижимости при парсинге"""
 
+    id = Column(Integer, primary_key=True)
     link = Column(String, unique=True, nullable=False)
     price = Column(Integer, nullable=True)
     title = Column(String, nullable=False)
