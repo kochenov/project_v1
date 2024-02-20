@@ -6,14 +6,23 @@ services:
     volumes:
       - ./database/postgres:/var/lib/postgresql/data
     env_file:
-      - ./backend/.env-non-dev
+      - ./backend/api_dreammanor/.env-non-dev
     ports:
       - "5432:5432"
+  db_parser:
+    image: postgres:latest
+    container_name: db_parser_app
+    volumes:
+      - ./database/postgres:/var/lib/postgresql/data
+    env_file:
+      - ./backend/api_parsing/.env-non-dev
+    ports:
+      - "5433:5432"
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
     env_file:
-      - ./backend/.env-non-dev
+      - ./backend/api_dreammanor/.env-non-dev
     ports:
       - "88:80"
     restart: always
