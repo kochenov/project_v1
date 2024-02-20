@@ -2,8 +2,8 @@ from fastapi import APIRouter, BackgroundTasks, Query, Depends, HTTPException
 from fastapi_pagination import Page, paginate
 from fastapi_pagination.utils import disable_installed_extensions_check
 
-from modules.links.repository import LinkRepository
-from modules.links.schemas import ReadLinkSchema
+from .repository import LinkRepository
+from .schemas import ReadLinkSchema, NewLinkSchema
 
 router = APIRouter(prefix="/links", tags=["Ссылки парсинга"])
 disable_installed_extensions_check()
@@ -22,3 +22,19 @@ async def get_links(
         return paginate(links)
     except Exception as e:
         print(e)
+
+
+@router.post("/add", name="Добавление новой ссылки")
+async def add_link(link_data: NewLinkSchema = Depends()):
+    """
+    Создание новой записи об объявлении
+    """
+    try:
+        link = await LinkRepository.find_one_or_none(link=link_data.link)
+
+        if link:
+            raise HTTPException(status_code=500, detail="Такая ссылка уже есть")
+        await LinkRepository.add(**link_data.model_dump())
+        return {"message": "Запись успешно создана", "error": None}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{e}")
