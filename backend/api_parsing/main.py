@@ -17,6 +17,7 @@ app.include_router(router_process)
 
 origins = [
     "http://localhost:9000",
+    "http://localhost:9090",
 ]
 
 app.add_middleware(

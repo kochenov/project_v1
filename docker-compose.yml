@@ -1,35 +1,108 @@
+# Версия спецификации Compose-файла
 version: '3.9'
+
+# Определение сервисов
 services:
+
+  # Сервис базы данных для основного приложения
   db:
-    image: postgres:latest
+    # Образ Docker: postgres:latest
+    image: postgres:alpine
+    # Имя контейнера: db_app
     container_name: db_app
+    # Привязка тома:
+    # - ./database/postgres к /var/lib/postgresql/data (каталог данных PostgreSQL)
     volumes:
       - ./database/postgres:/var/lib/postgresql/data
+    # Файл окружения:
+    # - ./backend/api_dreammanor/.env-non-dev (переменные окружения для сервиса)
     env_file:
       - ./backend/api_dreammanor/.env-non-dev
+    # Опубликованный порт:
+    # - 5432 (внешний):5432 (внутренний)
     ports:
       - "5432:5432"
+
+  # Сервис базы данных для парсера
   db_parser:
-    image: postgres:latest
+    # Образ Docker: postgres:latest
+    image: postgres:alpine
+    # Имя контейнера: db_parser_app
     container_name: db_parser_app
+    # Привязка тома:
+    # - ./database/postgres к /var/lib/postgresql/data (каталог данных PostgreSQL)
     volumes:
       - ./database/postgres:/var/lib/postgresql/data
+    # Файл окружения:
+    # - ./backend/api_parsing/.env-non-dev (переменные окружения для сервиса)
     env_file:
       - ./backend/api_parsing/.env-non-dev
+    # Опубликованный порт:
+    # - 5433 (внешний):5432 (внутренний)
     ports:
       - "5433:5432"
+    depends_on:
+      - db
+
+  # Сервис pgadmin для управления базами данных
   pgadmin:
+    # Образ Docker: dpage/pgadmin4:latest
     image: dpage/pgadmin4:latest
+    # Имя контейнера: pgadmin
     container_name: pgadmin
+    # Файл окружения:
+    # - ./backend/api_dreammanor/.env-non-dev (переменные окружения для сервиса)
     env_file:
       - ./backend/api_dreammanor/.env-non-dev
+    # Опубликованный порт:
+    # - 88 (внешний):80 (внутренний)
     ports:
       - "88:80"
+    # Автоматический перезапуск сервиса в случае сбоя
     restart: always
+    depends_on:
+      - db
+
+  # Сервис Redis (хранилище данных на основе key-value)
   redis:
+    # Образ Docker: redis:latest
     image: redis:latest
+    # Имя контейнера: redis_app
     container_name: redis_app
+    # Опубликованный порт:
+    # - 6379 (внешний):6379 (внутренний)
     ports:
       - "6379:6379"
+    # Привязка тома:
+    # - ./database/redis к /data (каталог данных Redis)
     volumes:
-    - ./database/redis:/data
+      - ./database/redis:/data
+    depends_on:
+      - db
+
+ # worker:
+ #   build: ./backend
+ #   command: celery -A worker.celery worker --loglevel=info --logfile=logs/celery.log
+ #   volumes:
+ #     - ./backend:/usr/src/app
+ #   environment:
+ #     - CELERY_BROKER_URL=redis://redis:6379/0
+ #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+ #   depends_on:
+ #     - db
+ #     - db_parser
+ #     - redis
+
+  #dashboard:
+  #  build: ./project
+  #  command: celery --broker=redis://redis:6379/0 flower --port=5555
+  #  ports:
+  #    - 5556:5555
+  #  environment:
+  #    - CELERY_BROKER_URL=redis://redis:6379/0
+  #    - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #  depends_on:
+  #    - db
+  #    - db_parser
+  #    - redis
+  #    - worker
